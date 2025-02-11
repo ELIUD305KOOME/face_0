@@ -6,23 +6,14 @@ from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity,
 )
-from werkzeug.security import generate_password_hash, check_password_hash
+from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError
 from models import db, Admin
-# from flask_limiter import Limiter
-# from flask_limiter.util import get_remote_address
-# from flask_talisman import Talisman
 import datetime
 from flask import Flask
 
-
 # Initialize the Flask app
 app = Flask(__name__)
-
-# Initialize Flask-Limiter for rate limiting
-# limiter = Limiter(key_func=get_remote_address,app=app,   default_limits=["200 per day", "50 per hour"])
-
-# # Secure HTTP headers using Flask-Talisman
-# talisman = Talisman()
 
 # Define Blueprints
 auth_bp = Blueprint('auth', __name__)
@@ -33,6 +24,9 @@ admin_parser = reqparse.RequestParser()
 admin_parser.add_argument('name', type=str, required=True, help="Name is required")
 admin_parser.add_argument('email', type=str, required=True, help="Email is required")
 admin_parser.add_argument('password', type=str, required=True, help="Password is required")
+
+# Password Hasher instance
+ph = PasswordHasher()
 
 # Helper function: lock accounts temporarily after failed attempts
 FAILED_ATTEMPTS = {}
@@ -63,8 +57,6 @@ def record_failed_attempt(email):
 
 # Admin Login Resource
 class AdminLoginResource(Resource):
-    # decorators = [limiter.limit("5 per minute")]
-
     def post(self):
         data = request.json
         email = data.get('email')
@@ -75,7 +67,14 @@ class AdminLoginResource(Resource):
             return {"message": "Account is temporarily locked due to multiple failed attempts. Try again later."}, 403
 
         admin = Admin.query.filter_by(email=email).first()
-        if not admin or not check_password_hash(admin.password_hash, password):
+        if not admin:
+            record_failed_attempt(email)
+            return {"message": "Invalid credentials"}, 401
+
+        # Verify password using Argon2
+        try:
+            ph.verify(admin.password_hash, password)
+        except VerifyMismatchError:
             record_failed_attempt(email)
             return {"message": "Invalid credentials"}, 401
 
@@ -93,7 +92,7 @@ class AdminLoginResource(Resource):
 class AdminRegisterResource(Resource):
     def post(self):
         args = admin_parser.parse_args()
-        hashed_password = generate_password_hash(args['password'], method='argon2')  # Using Argon2 for password hashing
+        hashed_password = ph.hash(args['password'])  # Using Argon2 for password hashing
 
         admin = Admin(
             name=args['name'],
@@ -118,7 +117,3 @@ class TokenRefreshResource(Resource):
 auth_api.add_resource(AdminLoginResource, '/login')
 auth_api.add_resource(AdminRegisterResource, '/register')
 auth_api.add_resource(TokenRefreshResource, '/refresh')
-
-# Add rate limiting and security headers
-# limiter.init_app(auth_bp)
-# talisman.init_app(auth_bp)
