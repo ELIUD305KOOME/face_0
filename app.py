@@ -23,7 +23,7 @@ CORS(app, origins=['https://solomonbeautyservices.vercel.app'])
 
 # Flask app configuration
 # app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///db.sqlite')  # Use DATABASE_URL from environment
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://sominolies_user:gOn4c7PIFLEgOFnBLOMNCgBi4w0C1Yto@dpg-culjv823esus73cvglrg-a.oregon-postgres.render.com/sominolies'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://sbss_kexr_user:JR4jZmP2OFSVMoHacA5qJlS3SM3H2M59@dpg-cun5i152ng1s739tlbv0-a.oregon-postgres.render.com/sbss_kexr'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'your_jwt_secret_key')  # Use JWT_SECRET_KEY from environment
 app.config['UPLOAD_FOLDER'] = 'uploads/products'
