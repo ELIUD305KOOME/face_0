@@ -19,7 +19,7 @@ import os
 app = Flask(__name__)
 
 # Enable CORS for the app
-CORS(app)
+CORS(app, origins=['https://solomonbeautyservices.vercel.app'])
 
 # Flask app configuration
 # app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///db.sqlite')  # Use DATABASE_URL from environment

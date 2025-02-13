@@ -51,7 +51,7 @@ class Product(db.Model, SerializerMixin):
     subcategory_name = db.Column(String(100), nullable=False)
     description = db.Column(Text, nullable=False)
     price = db.Column(Float, nullable=False)
-    image_url = db.Column(String(1000), nullable=True)
+    image_url = db.Column(db.Text, nullable=True)
     clicks = db.Column(Integer, default=0)
 
     serialize_rules = ('-clicks',)  # Exclude clicks from serialization
@@ -81,8 +81,8 @@ class Service(db.Model, SerializerMixin):
     price = db.Column(Float, nullable=False)
     category_name = db.Column(String(100), nullable=False)
     subcategory_name = db.Column(String(100), nullable=False)
-    before_service_image = db.Column(String(1000), nullable=True)  # New field for before service image
-    after_service_image = db.Column(String(1000), nullable=True)   # New field for after service image
+    before_service_image = db.Column(db.Text, nullable=True)  # New field for before service image
+    after_service_image = db.Column(db.Text, nullable=True)   # New field for after service image
     clicks = db.Column(Integer, default=0)
 
     serialize_rules = ('-clicks',)  # Exclude clicks from serialization
